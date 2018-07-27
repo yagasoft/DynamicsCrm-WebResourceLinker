@@ -6,8 +6,8 @@ A Visual Studio plugin that facilitates the registration of web resources. It su
 
 ### Credits
 
-  + Base code:
-	+ gperera (Magnetism Solutions Ltd)
+  + gperera (Magnetism Solutions Ltd)
+	+ Base code
 	+ https://archive.codeplex.com/?p=webresourcelinker
 	+ My work:
 		+ Converted to VSIX
