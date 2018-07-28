@@ -7,8 +7,8 @@
         <MoreInfo>https://marketplace.visualstudio.com/items?itemName=Yagasoft.WebResourceLinkerExt</MoreInfo>
         <License>license.txt</License>
         <ReleaseNotes>README.txt</ReleaseNotes>
-        <Icon>Resources\Generator.png</Icon>
-        <PreviewImage>Resources\Generator.png</PreviewImage>
+        <Icon>Resources\linker.png</Icon>
+        <PreviewImage>Resources\linker.png</PreviewImage>
         <Tags>dynamics,crm,web,resource,link,publish,xrm,javascript</Tags>
     </Metadata>
     <Installation InstalledByMsi="false">
