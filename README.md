@@ -1,5 +1,5 @@
 # DynamicsCrm-WebResourceLinker
-### Version: 1.1
+### Version: 2.3.3
 ---
 
 A Visual Studio plugin that facilitates the registration of web resources. It supports bulk update by selecting web resources at once.

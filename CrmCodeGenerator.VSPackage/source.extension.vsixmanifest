@@ -1,9 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="d57cc223-354b-12cc-b5d0-814a71ce2d61" Version="2.3.2" Language="en-US" Publisher="gperera &amp; Ahmed el-Sawalhy" />
-        <DisplayName>CRM Web Resource Linker Extension</DisplayName>
-        <Description xml:space="preserve">CRM Web Resource Linker Extension</Description>
+        <Identity Id="WebResourceLinkerExt" Version="2.3.3" Language="en-US" Publisher="gperera &amp; Ahmed el-Sawalhy" />
+        <DisplayName>Dynamics CRM - Web Resource Linker</DisplayName>
+        <Description xml:space="preserve">Visual Studio plugin that facilitates the registration of web resources.</Description>
+        <MoreInfo>https://marketplace.visualstudio.com/items?itemName=Yagasoft.WebResourceLinkerExt</MoreInfo>
+        <License>license.txt</License>
+        <ReleaseNotes>README.txt</ReleaseNotes>
+        <Icon>Resources\Generator.png</Icon>
+        <PreviewImage>Resources\Generator.png</PreviewImage>
+        <Tags>dynamics,crm,web,resource,link,publish,xrm,javascript</Tags>
     </Metadata>
     <Installation InstalledByMsi="false">
         <InstallationTarget Version="[12.0,)" Id="Microsoft.VisualStudio.Pro" />
