@@ -1,4 +1,7 @@
 # DynamicsCrm-WebResourceLinker
+
+[![Join the chat at https://gitter.im/yagasoft/DynamicsCrm-WebResourceLinker](https://badges.gitter.im/yagasoft/DynamicsCrm-WebResourceLinker.svg)](https://gitter.im/yagasoft/DynamicsCrm-WebResourceLinker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ### Version: 2.3.3
 ---
 
