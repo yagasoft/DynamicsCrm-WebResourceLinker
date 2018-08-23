@@ -112,7 +112,7 @@ namespace WebResourceLinker
 			".ico"
 		};
 
-		private readonly int[] typeImageMapping = {0, 1, 2, 3, 4, 4, 4, 5, 3, 4};
+		private readonly int[] typeImageMapping = { 0, 1, 2, 3, 4, 4, 4, 5, 3, 4 };
 		// maps the above idexes with the _treeImages list index below
 
 		private readonly ImageList treeImages = new ImageList();
@@ -127,7 +127,6 @@ namespace WebResourceLinker
 		{
 			TryPublishing();
 		}
-
 
 		private void connect_Click(object sender, EventArgs e)
 		{
@@ -185,7 +184,7 @@ namespace WebResourceLinker
 
 		private void ShowConnectionDialog()
 		{
-			var cc = new CrmConnection {LinkerDataPath = LinkerDataPath};
+			var cc = new CrmConnection { LinkerDataPath = LinkerDataPath };
 
 			if (cc.ShowDialog() == DialogResult.OK)
 			{
@@ -233,21 +232,22 @@ namespace WebResourceLinker
 
 					if (!Relink && UnmappedFile == null)
 					{
-						var alreadyMappednMatching = SelectedFiles.Where(selectedFile =>
-																		 {
-																			 // grab correctly mapped files and publish them
-																			 return existing.Mappings
-																				 .Any(
-																					 a =>
-																						 a.SourceFilePath.Equals(selectedFile.FriendlyFilePath,
-																							 StringComparison.InvariantCultureIgnoreCase))
-																				 &&
-																				 // make sure we don't attempt to publish already published items
-																				 !PublishedFiles.Any(
-																					 a =>
-																						 a.FilePath.Equals(selectedFile.FilePath,
-																							 StringComparison.InvariantCultureIgnoreCase));
-																		 }).ToList();
+						var alreadyMappednMatching =
+							SelectedFiles.Where(selectedFile =>
+												{
+													// grab correctly mapped files and publish them
+													return existing.Mappings
+														.Any(
+															a =>
+																a.SourceFilePath.Equals(selectedFile.FriendlyFilePath,
+																	StringComparison.InvariantCultureIgnoreCase))
+														&&
+														// make sure we don't attempt to publish already published items
+														!PublishedFiles.Any(
+															a =>
+																a.FilePath.Equals(selectedFile.FilePath,
+																	StringComparison.InvariantCultureIgnoreCase));
+												}).ToList();
 
 						UnMappedCount = UnMappedCount ?? SelectedFiles
 							.Count(selectedFile =>
@@ -312,7 +312,7 @@ namespace WebResourceLinker
 															  Status.Update($"ERROR: {ex.Message}");
 															  Controller.Trace("ERROR: {0}", ex.Message);
 															  ToggleControl(connect, true);
-																  // enable the connect button so the user can try connecting to a different org
+															  // enable the connect button so the user can try connecting to a different org
 														  }
 													  }));
 						return;
@@ -419,7 +419,7 @@ namespace WebResourceLinker
 											  SourceFilePath = UnmappedFile.FriendlyFilePath
 										  });
 
-					Publish(new[] {webresourceId}, new[] {UnmappedFile.FilePath}, new List<SelectedFile>(new[] {UnmappedFile}));
+					Publish(new[] { webresourceId }, new[] { UnmappedFile.FilePath }, new List<SelectedFile>(new[] { UnmappedFile }));
 					UnmappedFile = null;
 
 					currentmapping.Text = "";
@@ -537,7 +537,7 @@ namespace WebResourceLinker
 		{
 			try
 			{
-				var percentComplete = (PublishedFiles.Count / (decimal) SelectedFiles.Count) * 100m;
+				var percentComplete = (PublishedFiles.Count / (decimal)SelectedFiles.Count) * 100m;
 				var msg = $"Published: {PublishedFiles.Count} of {SelectedFiles.Count} ({percentComplete:N0}%)";
 				Status.Update(msg);
 
@@ -679,7 +679,7 @@ namespace WebResourceLinker
 		{
 			try
 			{
-				var rwrh = (RetrieveWebResourceHandler) result.AsyncState;
+				var rwrh = (RetrieveWebResourceHandler)result.AsyncState;
 				var results = rwrh.EndInvoke(result);
 
 				Controller.Trace("Found {0} web resource(s)", results.Count);

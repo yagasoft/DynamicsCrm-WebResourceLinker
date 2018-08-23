@@ -3,14 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.ServiceModel;
-using System.ServiceModel.Description;
 using System.Text.RegularExpressions;
-using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Client;
-using Microsoft.Xrm.Sdk.Discovery;
 using Microsoft.Xrm.Tooling.Connector;
 
 #endregion
@@ -19,29 +14,35 @@ namespace WebResourceLinker
 {
 	public class QuickConnection
 	{
-		private static readonly IDictionary<string, IOrganizationService> serviceCache = new Dictionary<string, IOrganizationService>();
+		private static readonly IDictionary<string, IOrganizationService> serviceCache =
+			new Dictionary<string, IOrganizationService>();
 
-		public static IOrganizationService Connect(string url, string domain, string username, string password, out string publicUrl)
+		private static string latestConnectionString;
+
+		public static IOrganizationService Connect(string connectionString, out string publicUrl)
 		{
-			publicUrl = url.Trim('/');
-			url = $"{publicUrl}";
+			var stringParts = connectionString.Split(';').Select(e => e.Split('=')).Where(e => e.Length == 2)
+				.ToDictionary(e => e[0].Trim().ToLower(), e => e[1].Trim());
 
-			var key = url + username + password;
+			var url = stringParts.FirstOrDefault(pair => pair.Key == "url").Value;
+			publicUrl = url.Trim('/');
+
+			var key = connectionString;
 
 			if (serviceCache.ContainsKey(key))
 			{
 				return serviceCache[key];
 			}
 
-			var conn = 
-				$"Url={url}; Username={username}; Password={password}"
-				+ (domain != null ? $"; Domain={domain}" : "");
+			var conn = connectionString;
 
-			conn = $"AuthType={(url.Contains("dynamics.com") ? "Office365" : "AD")};" + conn;
-			conn = conn.Trim(';') + "RequireNewInstance=true";
-			
-			var escapedString = Regex.Replace(conn, @"Password\s*?=.*?(?:;{0,1}$|;)",
-				"Password=********;");
+			if (latestConnectionString != connectionString)
+			{
+				conn = conn.Trim(';') + "RequireNewInstance=true";
+			}
+
+			var escapedString = Regex
+				.Replace(conn, stringParts.FirstOrDefault(pair => pair.Key == "password").Value, "********");
 
 			var sdk = new CrmServiceClient(conn);
 
@@ -51,6 +52,8 @@ namespace WebResourceLinker
 					?? (sdk.LastCrmException != null ? BuildExceptionMessage(sdk.LastCrmException) : null);
 				throw new ServiceActivationException($"Can't create connection to: \"{escapedString}\" due to\r\n{errorMessage}");
 			}
+
+			latestConnectionString = connectionString;
 
 			return serviceCache[key] = sdk;
 		}
@@ -73,6 +76,5 @@ namespace WebResourceLinker
 							? ""
 							: "\r\nInner stack trace:\r\n" + ex.InnerException.StackTrace));
 		}
-
 	}
 }

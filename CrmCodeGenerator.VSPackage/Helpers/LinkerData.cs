@@ -85,7 +85,7 @@ namespace WebResourceLinker
 			}
 			else
 			{
-				result.Password = Encryption.Decrypt(result.Password, Encryption.EncryptionKey);
+				result.DiscoveryUrl = Encryption.Decrypt(result.DiscoveryUrl, Encryption.EncryptionKey);
 			}
 
 			Status.Update(newLine ? "Done reading settings!" : "done!");
@@ -144,7 +144,7 @@ namespace WebResourceLinker
 
 			try
 			{
-				Password = Encryption.Encrypt(Password, Encryption.EncryptionKey);
+				DiscoveryUrl = Encryption.Encrypt(DiscoveryUrl, Encryption.EncryptionKey);
 
 				using (var sw = new StreamWriter(file, false))
 				{

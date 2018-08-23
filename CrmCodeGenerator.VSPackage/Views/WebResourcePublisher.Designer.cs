@@ -150,7 +150,7 @@ namespace WebResourceLinker
 			this.ShowIcon = false;
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "CRM Web Resource Linker v2.3.2";
+			this.Text = "CRM Web Resource Linker v2.4.1";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.WebResourcePublisher_FormClosing);
 			this.Load += new System.EventHandler(this.WebResourcePublisher_Load);
 			this.status.ResumeLayout(false);

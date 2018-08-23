@@ -47,7 +47,7 @@ namespace WebResourceLinker
         public string PublicUrl { get; set; }
         public string LinkerDataPath { get; set; }
 
-        private delegate IOrganizationService GetCrmConnectionHandler(string url, string domain, string username, string password);
+        private delegate IOrganizationService GetCrmConnectionHandler(string connectionString);
 
         private void connect_Click(object sender, EventArgs e)
         {
@@ -57,20 +57,20 @@ namespace WebResourceLinker
             GetCrmConnectionHandler gcch = new GetCrmConnectionHandler(BeginGetCrmConnection);
             AsyncCallback callback = new AsyncCallback(EndGetCrmConnection);
 
-            gcch.BeginInvoke(this.discourl.Text, this.domain.Text, this.username.Text, this.password.Text, callback, gcch);
+            gcch.BeginInvoke(this.discourl.Text, callback, gcch);
         }
 
-        private IOrganizationService BeginGetCrmConnection(string url, string domain, string username, string password)
+        private IOrganizationService BeginGetCrmConnection(string connectionString)
         {
             IOrganizationService sdk = null;
 
             try
             {
                 string publicUrl = "";
-                sdk = QuickConnection.Connect(url, domain, username, password, out publicUrl);
+                sdk = QuickConnection.Connect(connectionString, out publicUrl);
                 this.PublicUrl = publicUrl;
 
-                Controller.SaveConnectionDetails(this.LinkerDataPath, url, domain, username, password, publicUrl);
+                Controller.SaveConnectionDetails(this.LinkerDataPath, connectionString, publicUrl);
             }
             catch (Exception ex)
             {
@@ -104,10 +104,7 @@ namespace WebResourceLinker
                 var data = LinkerData.Get(this.LinkerDataPath);
                 if (data != null)
                 {
-					this.discourl.Text = string.IsNullOrEmpty(data.DiscoveryUrl) ? "" : data.DiscoveryUrl.Replace("/XRMServices/2011/Discovery.svc", "");
-                    this.domain.Text = data.Domain;
-                    this.username.Text = data.Username;
-                    this.password.Text = data.Password;
+					this.discourl.Text = string.IsNullOrEmpty(data.DiscoveryUrl) ? "" : data.DiscoveryUrl;
                 }
             }
         }
