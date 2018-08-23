@@ -1,4 +1,7 @@
 # DynamicsCrm-WebResourceLinker
+
+[![Join the chat at https://gitter.im/yagasoft/DynamicsCrm-WebResourceLinker](https://badges.gitter.im/yagasoft/DynamicsCrm-WebResourceLinker.svg)](https://gitter.im/yagasoft/DynamicsCrm-WebResourceLinker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ### Version: 2.4.1
 ---
 
@@ -20,4 +23,4 @@ A Visual Studio plugin that facilitates the registration of web resources. It su
 + Changed: switched to a using connection strings for connections to make it most flexible
 
 ---
-**Copyright &copy; by Ahmed el-Sawalhy ([YagaSoft](http://yagasoft.com))** -- _GPL v3 Licence_
+**Copyright &copy; by Ahmed el-Sawalhy ([Yagasoft](http://yagasoft.com))** -- _GPL v3 Licence_
