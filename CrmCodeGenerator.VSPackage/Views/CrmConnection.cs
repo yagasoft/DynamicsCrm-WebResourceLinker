@@ -7,6 +7,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using WebResourceLinkerExt.VSPackage.Helpers;
+using Yagasoft.Libraries.Common;
 
 namespace WebResourceLinker
 {
@@ -74,7 +76,8 @@ namespace WebResourceLinker
             }
             catch (Exception ex)
             {
-                UpdateStatus(string.Format("Connection failed: {0}", ex.Message));
+						UpdateStatus($"Connection failed: {ex.Message}");
+						Status.Update(ex.BuildExceptionMessage());
             }
 
             return sdk;

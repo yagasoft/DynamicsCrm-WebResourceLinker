@@ -124,11 +124,11 @@ namespace WebResourceLinker
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(137, 365);
+			this.label1.Location = new System.Drawing.Point(95, 365);
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(234, 13);
+			this.label1.Size = new System.Drawing.Size(276, 13);
 			this.label1.TabIndex = 7;
-			this.label1.Text = "Author: gperera. Rework: Ahmed el-Sawalhy";
+			this.label1.Text = "Ahmed Elsawalhy (Yagasoft.com), base code: gperera";
 			// 
 			// WebResourcePublisher
 			// 
@@ -150,7 +150,7 @@ namespace WebResourceLinker
 			this.ShowIcon = false;
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "CRM Web Resource Linker v2.4.1";
+			this.Text = "CRM Web Resource Linker v2.5.1";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.WebResourcePublisher_FormClosing);
 			this.Load += new System.EventHandler(this.WebResourcePublisher_Load);
 			this.status.ResumeLayout(false);

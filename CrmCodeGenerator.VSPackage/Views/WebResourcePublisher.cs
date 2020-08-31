@@ -12,6 +12,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using WebResourceLinkerExt.Properties;
 using WebResourceLinkerExt.VSPackage.Helpers;
+using Yagasoft.Libraries.Common;
 
 #endregion
 
@@ -23,6 +24,8 @@ namespace WebResourceLinker
 
 		private void UpdateStatus(string msg)
 		{
+			Status.Update(msg);
+
 			if (status.InvokeRequired)
 			{
 				status.BeginInvoke(new MethodInvoker(delegate { statusmsg.Text = msg; }));
@@ -214,7 +217,7 @@ namespace WebResourceLinker
 			}
 			catch (Exception ex)
 			{
-				Controller.Trace("Failed to load images: {0}", ex.ToString());
+				Status.Update($"Failed to load images: {ex.BuildExceptionMessage()}");
 			}
 		}
 
@@ -309,8 +312,7 @@ namespace WebResourceLinker
 														  catch (Exception ex)
 														  {
 															  Status.Update("");
-															  Status.Update($"ERROR: {ex.Message}");
-															  Controller.Trace("ERROR: {0}", ex.Message);
+															  Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 															  ToggleControl(connect, true);
 															  // enable the connect button so the user can try connecting to a different org
 														  }
@@ -334,8 +336,7 @@ namespace WebResourceLinker
 			catch (Exception ex)
 			{
 				Status.Update("");
-				Status.Update($"ERROR: {ex.Message}");
-				Controller.Trace("ERROR: {0}", ex.Message);
+				Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 				ToggleControl(connect, true); // enable the connect button so the user can try connecting to a different org
 			}
 		}
@@ -390,8 +391,7 @@ namespace WebResourceLinker
 			catch (Exception ex)
 			{
 				Status.Update("");
-				Status.Update($"ERROR: {ex.Message}");
-				Controller.Trace("ERROR: {0}", ex.Message);
+				Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 				ToggleControl(connect, true); // enable the connect button so the user can try connecting to a different org
 			}
 		}
@@ -428,8 +428,7 @@ namespace WebResourceLinker
 			catch (Exception ex)
 			{
 				Status.Update("");
-				Status.Update($"ERROR: {ex.Message}");
-				Controller.Trace("ERROR: {0}", ex.Message);
+				Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 				ToggleControl(connect, true); // enable the connect button so the user can try connecting to a different org
 			}
 			finally
@@ -446,7 +445,6 @@ namespace WebResourceLinker
 				ToggleControls(false);
 
 				Status.Update($"Attempting to publish: {string.Join("; ", filePaths.Select(Path.GetFileName))}");
-				Controller.Trace("Attempting to publish: {0}", string.Join("; ", filePaths.Select(Path.GetFileName)));
 
 				var base64Content = new string[webresourceIds.Length];
 				for (var i = 0; i < webresourceIds.Length; i++)
@@ -464,15 +462,14 @@ namespace WebResourceLinker
 			catch (Exception ex)
 			{
 				Status.Update("");
-				Status.Update($"ERROR: {ex.Message}");
-				Controller.Trace("ERROR: {0}", ex.Message);
+				Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 				ToggleControl(connect, true); // enable the connect button so the user can try connecting to a different org
 			}
 		}
 
 		private Guid[] UpdateContent(Guid[] webresourceIds, string[] base64Contents)
 		{
-			UpdateStatus("Updating content...");
+			UpdateStatus("Updating content ...");
 
 			for (var i = 0; i < webresourceIds.Length; i++)
 			{
@@ -485,7 +482,7 @@ namespace WebResourceLinker
 				try
 				{
 					Sdk.Update(resource);
-					Controller.Trace("Updated: {0}", webresourceIds[i]);
+					Status.Update($"Updated: {webresourceIds[i]}");
 				}
 				catch (Exception ex)
 				{
@@ -505,7 +502,7 @@ namespace WebResourceLinker
 				return new Guid[0];
 			}
 
-			UpdateStatus("Publishing...");
+			UpdateStatus("Publishing ...");
 
 			var request = new OrganizationRequest
 						  {
@@ -539,11 +536,9 @@ namespace WebResourceLinker
 			{
 				var percentComplete = (PublishedFiles.Count / (decimal)SelectedFiles.Count) * 100m;
 				var msg = $"Published: {PublishedFiles.Count} of {SelectedFiles.Count} ({percentComplete:N0}%)";
-				Status.Update(msg);
 
-				Controller.Trace("Published: {0}", string.Join("; ", webresourceIds));
 				UpdateStatus(msg);
-				Controller.Trace(msg);
+				Status.Update($"Published: {string.Join("; ", webresourceIds)}");
 
 				publishing = false;
 				ToggleControls(true);
@@ -617,8 +612,7 @@ namespace WebResourceLinker
 			catch (Exception ex)
 			{
 				Status.Update("");
-				Status.Update($"ERROR: {ex.Message}");
-				Controller.Trace("ERROR: {0}", ex.Message);
+				Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 				ToggleControl(connect, true); // enable the connect button so the user can try connecting to a different org
 			}
 		}
@@ -632,7 +626,7 @@ namespace WebResourceLinker
 			{
 				ToggleControls(false);
 
-				UpdateStatus("Loading web resources...");
+				UpdateStatus("Loading web resources ...");
 				webresources.Nodes.Clear();
 
 				var rwrh = new RetrieveWebResourceHandler(BeginShowExistingWebResources);
@@ -643,8 +637,7 @@ namespace WebResourceLinker
 			catch (Exception ex)
 			{
 				Status.Update("");
-				Status.Update($"ERROR: {ex.Message}");
-				Controller.Trace("ERROR: {0}", ex.Message);
+				Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 				ToggleControl(connect, true); // enable the connect button so the user can try connecting to a different org
 			}
 		}
@@ -667,8 +660,7 @@ namespace WebResourceLinker
 			catch (Exception ex)
 			{
 				Status.Update("");
-				Status.Update($"ERROR: {ex.Message}");
-				Controller.Trace("ERROR: {0}", ex.Message);
+				Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 				ToggleControl(connect, true); // enable the connect button so the user can try connecting to a different org
 			}
 
@@ -682,10 +674,11 @@ namespace WebResourceLinker
 				var rwrh = (RetrieveWebResourceHandler)result.AsyncState;
 				var results = rwrh.EndInvoke(result);
 
-				Controller.Trace("Found {0} web resource(s)", results.Count);
+				Status.Update($"Found {results.Count} web resource(s).");
 
 				foreach (var a in results
 					.GroupBy(a => a.GetAttributeValue<OptionSetValue>("webresourcetype").Value)
+					.Where(a => (a.Key - 1) < typeMapping.Length)
 					.OrderByDescending(a => typeMapping[a.Key - 1].ToLower().Contains(".js"))
 					.ThenBy(a => a.Key))
 				{
@@ -705,15 +698,14 @@ namespace WebResourceLinker
 					}
 				}
 
-				UpdateStatus($"{results.Count} web resources loaded");
+				UpdateStatus($"{results.Count} web resources loaded.");
 
 				ToggleControls(true);
 			}
 			catch (Exception ex)
 			{
 				Status.Update("");
-				Status.Update($"ERROR: {ex.Message}");
-				Controller.Trace("ERROR: {0}", ex.Message);
+				Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 				ToggleControl(connect, true); // enable the connect button so the user can try connecting to a different org
 			}
 		}
@@ -745,8 +737,7 @@ namespace WebResourceLinker
 			catch (Exception ex)
 			{
 				Status.Update("");
-				Status.Update($"ERROR: {ex.Message}");
-				Controller.Trace("ERROR: {0}", ex.Message);
+				Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 				ToggleControl(connect, true); // enable the connect button so the user can try connecting to a different org
 			}
 		}

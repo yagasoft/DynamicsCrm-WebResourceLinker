@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Microsoft.Xrm.Sdk;
 using WebResourceLinkerExt.VSPackage;
 using WebResourceLinkerExt.VSPackage.Helpers;
+using Yagasoft.Libraries.Common;
 
 #endregion
 
@@ -30,8 +31,10 @@ namespace WebResourceLinker
 		{
 			var linked = LinkerData.Get(linkerDataPath);
 
-			var message = relinking ? "Initializing re-link on: {0}" : "Initializing link/publish on: {0}";
-			Trace(message, linked.PublicUrl);
+			var message = relinking
+				? $"Initializing re-link on: {linked.PublicUrl}"
+				: $"Initializing link/publish on: {linked.PublicUrl}";
+			Status.Update(message);
 
 			var wrp =
 				new WebResourcePublisher
@@ -46,8 +49,7 @@ namespace WebResourceLinker
 			Task.Factory.StartNew(
 				() =>
 				{
-					Trace("Connecting...");
-					Status.Update("Connecting ... ", false);
+					Status.Update("Connecting ... ");
 
 					var publicUrl = "";
 					IOrganizationService sdk = null;
@@ -55,13 +57,11 @@ namespace WebResourceLinker
 					try
 					{
 						sdk = QuickConnection.Connect(linked.DiscoveryUrl, out publicUrl);
-						Status.Update("done!");
+						Status.Update("Connected.");
 					}
 					catch (Exception ex)
 					{
-						Status.Update("");
-						Status.Update($"Connection failed: {ex.Message}");
-						Trace("Connection failed: {0}", ex.Message);
+						Status.Update($"Connection failed:\r\n{ex.BuildExceptionMessage()}");
 					}
 
 					return new object[] { sdk, publicUrl };
@@ -75,7 +75,6 @@ namespace WebResourceLinker
 							{
 								Status.Update("");
 								Status.Update("ERROR: couldn't connect to CRM.");
-								Trace("ERROR: couldn't connect to CRM.");
 
 								wrp.Relink = false;
 								wrp.ShowConnectionWindow = true;
@@ -96,9 +95,7 @@ namespace WebResourceLinker
 						}
 						catch (Exception ex)
 						{
-							Status.Update("");
-							Status.Update($"ERROR: {ex.Message}");
-							Trace("ERROR: {0}", ex.Message);
+							Status.Update($"ERROR:\r\n{ex.BuildExceptionMessage()}");
 						}
 					}, TaskScheduler.FromCurrentSynchronizationContext());
 		}
@@ -119,11 +116,6 @@ namespace WebResourceLinker
 				MessageBox.Show($"Unable to save connection details. Error: {ex.Message}",
 					"ERROR!", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
-		}
-
-		public void Trace(string format, params object[] args)
-		{
-			vsAddin?.WriteToOutputWindow(format, args);
 		}
 	}
 }

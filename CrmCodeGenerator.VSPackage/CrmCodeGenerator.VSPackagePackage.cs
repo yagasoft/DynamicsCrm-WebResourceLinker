@@ -71,8 +71,11 @@ namespace WebResourceLinkerExt.VSPackage
 		protected override void Initialize()
 		{
 			AssemblyHelpers.RedirectAssembly("Microsoft.Xrm.Sdk", new Version("9.0.0.0"), "31bf3856ad364e35");
-			////AssemblyHelpers.RedirectAssembly("Microsoft.IdentityModel.Clients.ActiveDirectory",
-			////	new Version("2.22.0.0"), "31bf3856ad364e35");
+			AssemblyHelpers.RedirectAssembly("Microsoft.Xrm.Sdk.Deployment", new Version("9.0.0.0"), "31bf3856ad364e35");
+			AssemblyHelpers.RedirectAssembly("Microsoft.Xrm.Tooling.Connector", new Version("4.0.0.0"), "31bf3856ad364e35");
+			AssemblyHelpers.RedirectAssembly("Microsoft.IdentityModel.Clients.ActiveDirectory",
+				new Version("3.19.8.16603"), "31bf3856ad364e35");
+			AssemblyHelpers.RedirectAssembly("Newtonsoft.Json", new Version("10.0.0.0"), "30ad4fe6b2a6aeed");
 
 			Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", ToString()));
 			base.Initialize();
@@ -235,29 +238,6 @@ namespace WebResourceLinkerExt.VSPackage
 		{
 			return filePath.Replace(solutionPath, "");
 				// this is for the mappings xml, we'll take away all drive specifics so that if multiple devs are using the solution on different paths we still base it from where the solution dir started
-		}
-
-		private OutputWindowPane _outputWindow;
-
-		public void WriteToOutputWindow(string format, params object[] args)
-		{
-			var applicationObject = GetService(typeof (SDTE)) as DTE2;
-
-			if (_outputWindow == null)
-			{
-				if (applicationObject != null) {
-					var window = applicationObject.Windows.Item("{34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3}");
-					var outputWindow = (OutputWindow) window.Object;
-					_outputWindow = outputWindow.OutputWindowPanes.Add("Web Resource Linker");
-				}
-			}
-			if (_outputWindow == null)
-			{
-				return;
-			}
-
-			_outputWindow.OutputString(string.Format(format, args));
-			_outputWindow.OutputString(Environment.NewLine);
 		}
 
 		#region SolutionEvents
