@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/yagasoft/DynamicsCrm-WebResourceLinker](https://badges.gitter.im/yagasoft/DynamicsCrm-WebResourceLinker.svg)](https://gitter.im/yagasoft/DynamicsCrm-WebResourceLinker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-### Version: 2.5.1
+### Version: 2.6.1
 ---
 
 A Visual Studio Extension that facilitates the registration of Web Resources. It supports bulk update by selecting multiple Web Resources at once.
@@ -23,7 +23,9 @@ Install Visual Studio Extension ([here](https://marketplace.visualstudio.com/ite
 
 ## Changes
 
-#### _v2.5.1 (2020-08-31)_
+#### _v2.6.1 (2021-10-04)_
++ Improved: upgraded to VS Async API
+#### _v2.5.2 (2020-08-31)_
 + Improved: message logging
 + Changed: upgraded SDK for compatibility with other Extensions
 + Fixed: issues

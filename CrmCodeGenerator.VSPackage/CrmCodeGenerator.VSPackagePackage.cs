@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using EnvDTE;
 using EnvDTE80;
@@ -17,6 +18,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using WebResourceLinker;
 using WebResourceLinkerExt.VSPackage.Helpers;
+using Task = System.Threading.Tasks.Task;
 
 #endregion
 
@@ -33,18 +35,17 @@ namespace WebResourceLinkerExt.VSPackage
 	/// </summary>
 	// This attribute tells the PkgDef creation utility (CreatePkgDef.exe) that this class is
 	// a package.
-	[PackageRegistration(UseManagedResourcesOnly = true)]
+	[PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
 	// This attribute is used to register the information needed to show this package
 	// in the Help/About dialog of Visual Studio.
 	[InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
 	//this causes the class to load when VS starts [ProvideAutoLoad("ADFC4E64-0397-11D1-9F4E-00A0C911004F")]
-	[ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasSingleProject_string)]
-	[ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasMultipleProjects_string)]
+	//[ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasSingleProject_string)]
+	//[ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasMultipleProjects_string)]
 	// This attribute is needed to let the shell know that this package exposes some menus.
 	[ProvideMenuResource("Menus.ctmenu", 1)]
 	[Guid(GuidList.guidWebResLinkExt_VSPackagePkgString)]
-	public sealed class WebResourceLinkerExt_VSPackagePackage : Package,
-		IVsSolutionEvents3
+	public sealed class WebResourceLinkerExt_VSPackagePackage : AsyncPackage, IVsSolutionEvents3
 	{
 		/// <summary>
 		///     Default constructor of the package.
@@ -68,22 +69,22 @@ namespace WebResourceLinkerExt.VSPackage
 		///     Initialization of the package; this method is called right after the package is sited, so this is the place
 		///     where you can put all the initialization code that rely on services provided by VisualStudio.
 		/// </summary>
-		protected override void Initialize()
+		protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
 		{
-			AssemblyHelpers.RedirectAssembly("Microsoft.Xrm.Sdk", new Version("9.0.0.0"), "31bf3856ad364e35");
-			AssemblyHelpers.RedirectAssembly("Microsoft.Xrm.Sdk.Deployment", new Version("9.0.0.0"), "31bf3856ad364e35");
-			AssemblyHelpers.RedirectAssembly("Microsoft.Xrm.Tooling.Connector", new Version("4.0.0.0"), "31bf3856ad364e35");
-			AssemblyHelpers.RedirectAssembly("Microsoft.IdentityModel.Clients.ActiveDirectory",
-				new Version("3.19.8.16603"), "31bf3856ad364e35");
-			AssemblyHelpers.RedirectAssembly("Newtonsoft.Json", new Version("10.0.0.0"), "30ad4fe6b2a6aeed");
+			await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
+
+			//AssemblyHelpers.RedirectAssembly("Microsoft.Xrm.Sdk", new Version("9.0.0.0"), "31bf3856ad364e35");
+			//AssemblyHelpers.RedirectAssembly("Microsoft.Xrm.Sdk.Deployment", new Version("9.0.0.0"), "31bf3856ad364e35");
+			//AssemblyHelpers.RedirectAssembly("Microsoft.Xrm.Tooling.Connector", new Version("4.0.0.0"), "31bf3856ad364e35");
+			//AssemblyHelpers.RedirectAssembly("Microsoft.IdentityModel.Clients.ActiveDirectory",
+			//	new Version("3.19.8.16603"), "31bf3856ad364e35");
+			//AssemblyHelpers.RedirectAssembly("Newtonsoft.Json", new Version("10.0.0.0"), "30ad4fe6b2a6aeed");
 
 			Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", ToString()));
-			base.Initialize();
+			await base.InitializeAsync(cancellationToken, progress);
 
 			// Add our command handlers for menu (commands must exist in the .vsct file)
-			var mcs = GetService(typeof (IMenuCommandService)) as OleMenuCommandService;
-
-			if (null != mcs)
+			if (await GetServiceAsync(typeof (IMenuCommandService)) is OleMenuCommandService mcs)
 			{
 				//var codeCmd = new CommandID(GuidList.guidWebResLinkExt_VSPackageCmdSet,
 				//	(int) PkgCmdIDList.cmdidCode);
@@ -92,16 +93,38 @@ namespace WebResourceLinkerExt.VSPackage
 
 				var fileCmd = new CommandID(GuidList.guidWebResLinkExt_VSPackageCmdSet,
 					(int) PkgCmdIDList.cmdidFile);
-				var fileItem = new MenuCommand(CodeCallback, fileCmd);
+				var fileItem = new MenuCommand(
+					async (o, e) =>
+						  {
+							  try
+							  {
+								  await CodeCallbackAsync(o, e);
+							  }
+							  catch (Exception ex)
+							  {
+								  MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+							  }
+						  }, fileCmd);
 				mcs.AddCommand(fileItem);
 
 				var relinkCmd = new CommandID(GuidList.guidWebResLinkExt_VSPackageCmdSet,
 					(int) PkgCmdIDList.cmdidFileRelink);
-				var relinkItem = new MenuCommand(RelinkCallback, relinkCmd);
+				var relinkItem = new MenuCommand(
+					async (o, e) =>
+						  {
+							  try
+							  {
+								  await RelinkCallbackAsync(o, e);
+							  }
+							  catch (Exception ex)
+							  {
+								  MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+							  }
+						  }, relinkCmd);
 				mcs.AddCommand(relinkItem);
 			}
 
-			AdviseSolutionEvents();
+			await AdviseSolutionEventsAsync();
 		}
 
 		protected override void Dispose(bool disposing)
@@ -114,11 +137,13 @@ namespace WebResourceLinkerExt.VSPackage
 		private IVsSolution solution = null;
 		private uint _handleCookie;
 
-		private void AdviseSolutionEvents()
+		private async Task AdviseSolutionEventsAsync()
 		{
+			await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
+
 			UnadviseSolutionEvents();
 
-			solution = GetService(typeof (SVsSolution)) as IVsSolution;
+			solution = await GetServiceAsync(typeof (SVsSolution)) as IVsSolution;
 
 			if (solution != null)
 			{
@@ -128,6 +153,8 @@ namespace WebResourceLinkerExt.VSPackage
 
 		private void UnadviseSolutionEvents()
 		{
+			ThreadHelper.ThrowIfNotOnUIThread();
+
 			if (solution != null)
 			{
 				if (_handleCookie != uint.MaxValue)
@@ -147,25 +174,27 @@ namespace WebResourceLinkerExt.VSPackage
 		///     See the Initialize method to see how the menu item is associated to this function using
 		///     the OleMenuCommandService service and the MenuCommand class.
 		/// </summary>
-		private void CodeCallback(object sender, EventArgs args)
+		private async Task CodeCallbackAsync(object sender, EventArgs args)
 		{
-			HandleCodeWindowCommand(false);
+			await HandleCodeWindowCommandAsync(false);
 		}
 
-		private void RelinkCallback(object sender, EventArgs args)
+		private async Task RelinkCallbackAsync(object sender, EventArgs args)
 		{
-			HandleCodeWindowCommand(true);
+			await HandleCodeWindowCommandAsync(true);
 		}
 
-		private void HandleCodeWindowCommand(bool relinking)
+		private async Task HandleCodeWindowCommandAsync(bool relinking)
 		{
+			await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
+
 			try
 			{
 				Status.Update(">>>>> Starting new session <<<<<");
 
 				try
 				{
-					var _applicationObject = GetService(typeof (SDTE)) as DTE2;
+					var _applicationObject = await GetServiceAsync(typeof (SDTE)) as DTE2;
 
 					const string linkerDataPath = "WebResLink.dat"; // this is our mapping file, it gets stored in the project
 					var solutionPath = Path.GetDirectoryName(_applicationObject.Solution.FullName);
